@@ -1,0 +1,30 @@
+    %赋值原方程组Jacobian矩阵中x相关项
+JacobiYuan;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %赋值原方程组Jacobian矩阵中DeltaT相关项
+JacobiDeltaT=zeros(5*N^2,1);
+    %赋值原方程组Jacobian矩阵中DeltaT相关项中（3,1）*(N^2*1)矩阵块
+JacobiDeltaT(2*N^2+1:3*N^2,1)=-A11alpha*(ri1.*(R1*dispwc)+RR1*dispwc)...
+    -A12alpha*(RR1*dispwc+ri1.*(R1*dispwc)+ri2.*(ThTh1*dispwc))...
+    -A22alpha*(ri2.*(ThTh1*dispwc));
+    %将边界条件赋值到原方程组Jacobian矩阵中DeltaT相关项中（3,1）*(N^2*1)矩阵块中
+JacobiDeltaT(2*N^2+1:2*N^2+N,1)=0;
+JacobiDeltaT(2*N^2+(N-1)*N+1:3*N^2,1)=0;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+matrixZ=-JacobiY\JacobiDeltaT;%计算列向量Z
+JacobiAlphaPian=-(1+matrixZ.'*matrixZ)^(1/2);%计算附加方程对DeltaT的偏导alpha'
+JacobiXpian=matrixZ*JacobiAlphaPian;%计算附加方程对x的偏导x'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%将原方程对位移u、v、w、phir、phitheta的Jacobi矩阵JacobiY，原方程对温度变化DeltaT的Jacobi矩阵JacobiDeltaT,
+%附加方程对位移u、v、w、phir、phitheta的Jacobi矩阵JacobiXpian，附加方程对温度变化DeltaT的Jacobi矩阵JacobiAlphaPian组装成
+%原方程加上附加方程的大方程组的大Jacobi矩阵
+JacobiZT=zeros(5*N^2+1);
+JacobiZT(1:5*N^2,1:5*N^2)=JacobiY;
+JacobiZT(1:5*N^2,5*N^2+1)=JacobiDeltaT;
+JacobiZT(5*N^2+1,1:5*N^2)=JacobiXpian;
+JacobiZT(5*N^2+1,5*N^2+1)=JacobiAlphaPian;
+%将原方程对位移u、v、w、phir、phitheta的Jacobi矩阵JacobiY，原方程对温度变化DeltaT的Jacobi矩阵JacobiDeltaT,
+%附加方程对位移u、v、w、phir、phitheta的Jacobi矩阵JacobiXpian，附加方程对温度变化DeltaT的Jacobi矩阵JacobiAlphaPian组装成
+%原方程加上附加方程的大方程组的大Jacobi矩阵
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+rankZT=rank(JacobiZT)
